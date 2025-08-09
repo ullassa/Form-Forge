@@ -130,13 +130,13 @@ const FormRenderer: React.FC = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {previewForm.fields
                 .sort((a, b) => a.order - b.order)
                 .map((field) => (
                   <div
                     key={field.id}
-                    className={field.type === 'textarea' ? 'md:col-span-2' : ''}
+                    className={field.type === 'textarea' ? 'lg:col-span-2' : ''}
                   >
                     <DynamicField
                       field={field}

@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import FieldTypesPanel from '../components/FormBuilder/FieldTypesPanel';
 import FormCanvas from '../components/FormBuilder/FormCanvas';
 import FieldConfigPanel from '../components/FormBuilder/FieldConfigPanel';
+import UserGuide from '../components/Help/UserGuide';
 import { saveFormToStorage } from '../utils/storage';
 import { generateId } from '../utils/helpers';
 import { Form } from '@shared/schema';
@@ -25,6 +26,7 @@ const CreateForm: React.FC = () => {
   const { currentForm } = useSelector((state: RootState) => state.formBuilder);
   
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [formName, setFormNameLocal] = useState(currentForm.name || '');
   const [formDescription, setFormDescriptionLocal] = useState(currentForm.description || '');
 
@@ -126,6 +128,9 @@ const CreateForm: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowGuide(!showGuide)}>
+            {showGuide ? 'Hide Guide' : 'How to Use'}
+          </Button>
           <Button variant="outline" onClick={handleNewForm}>
             New Form
           </Button>
@@ -157,18 +162,27 @@ const CreateForm: React.FC = () => {
         </div>
       </div>
 
+      {/* User Guide */}
+      {showGuide && (
+        <div className="mb-6">
+          <UserGuide />
+        </div>
+      )}
+
       {/* Main Form Builder Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         {/* Field Types Panel */}
-        <div className="lg:col-span-1">
-          <FieldTypesPanel
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          />
+        <div className="xl:col-span-1 order-1 xl:order-1">
+          <div className="sticky top-20">
+            <FieldTypesPanel
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            />
+          </div>
         </div>
 
         {/* Form Canvas */}
-        <div className="lg:col-span-2">
+        <div className="xl:col-span-2 order-2 xl:order-2">
           <FormCanvas
             onSaveForm={handleSaveForm}
             onEditField={handleEditField}
@@ -176,8 +190,10 @@ const CreateForm: React.FC = () => {
         </div>
 
         {/* Field Configuration Panel */}
-        <div className="lg:col-span-1">
-          <FieldConfigPanel />
+        <div className="xl:col-span-1 order-3 xl:order-3">
+          <div className="sticky top-20">
+            <FieldConfigPanel />
+          </div>
         </div>
       </div>
 

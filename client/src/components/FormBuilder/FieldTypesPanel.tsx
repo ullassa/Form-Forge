@@ -60,7 +60,7 @@ const FieldTypesPanel: React.FC<FieldTypesPanelProps> = ({ onDragStart, onDragEn
                 draggable
                 onDragStart={(e) => handleDragStart(e, fieldType.type)}
                 onDragEnd={onDragEnd}
-                className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-move transition-all duration-200 hover:transform hover:translate-x-1 hover:shadow-md"
+                className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-move transition-all duration-200 hover:transform hover:translate-x-1 hover:shadow-md active:scale-95"
               >
                 <div className="flex items-center space-x-3">
                   <IconComponent className={`w-5 h-5 ${fieldType.color}`} />
