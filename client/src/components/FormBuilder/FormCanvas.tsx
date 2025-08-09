@@ -51,7 +51,7 @@ const FormCanvas: React.FC<FormCanvasProps> = ({ onSaveForm, onEditField }) => {
   };
 
   const handleFieldSelect = (fieldId: string) => {
-    console.log('Field selected:', fieldId);
+    console.log('FormCanvas: Field selected:', fieldId);
     dispatch(selectField(fieldId));
   };
 

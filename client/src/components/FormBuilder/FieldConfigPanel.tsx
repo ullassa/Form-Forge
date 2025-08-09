@@ -23,6 +23,13 @@ const FieldConfigPanel: React.FC = () => {
   const [validationRules, setValidationRules] = useState<ValidationRule[]>([]);
   const [derivedConfig, setDerivedConfig] = useState<DerivedFieldConfig | null>(null);
 
+  console.log('FieldConfigPanel render:', {
+    selectedFieldId,
+    currentFormFields: currentForm.fields?.map(f => ({ id: f.id, label: f.label })),
+    selectedField: selectedField ? { id: selectedField.id, label: selectedField.label } : null,
+    fieldConfig: fieldConfig ? { id: fieldConfig.id, label: fieldConfig.label } : null
+  });
+
   useEffect(() => {
     console.log('FieldConfigPanel - selectedFieldId:', selectedFieldId);
     console.log('FieldConfigPanel - selectedField:', selectedField);
@@ -37,12 +44,22 @@ const FieldConfigPanel: React.FC = () => {
     }
   }, [selectedField, selectedFieldId]);
 
-  const handleFieldUpdate = (updates: Partial<FormField>) => {
-    if (fieldConfig) {
-      const updatedField = { ...fieldConfig, ...updates };
-      setFieldConfig(updatedField);
-      dispatch(updateField(updatedField));
+    const handleFieldUpdate = (updates: Partial<FormField>) => {
+    console.log('FieldConfigPanel: handleFieldUpdate called with:', updates);
+    console.log('Current fieldConfig:', fieldConfig);
+    
+    if (!fieldConfig) {
+      console.log('FieldConfigPanel: No fieldConfig, returning early');
+      return;
     }
+    
+    // Update local state immediately for responsive UI
+    const updatedField = { ...fieldConfig, ...updates };
+    setFieldConfig(updatedField);
+    
+    // Also dispatch to Redux store
+    console.log('FieldConfigPanel: Dispatching updateField with:', updatedField);
+    dispatch(updateField(updatedField));
   };
 
   const handleValidationRuleAdd = () => {
@@ -364,7 +381,20 @@ const FieldConfigPanel: React.FC = () => {
           )}
         </div>
 
-        <Button className="w-full" onClick={() => handleFieldUpdate({})}>
+        <Button 
+          className="w-full" 
+          onClick={() => {
+            console.log('Apply Changes clicked - current fieldConfig:', fieldConfig);
+            if (fieldConfig) {
+              console.log('Applying changes to field:', fieldConfig.id);
+              // Force a complete update with the current configuration
+              dispatch(updateField(fieldConfig));
+              console.log('Changes applied successfully');
+            } else {
+              console.log('No field selected - cannot apply changes');
+            }
+          }}
+        >
           Apply Changes
         </Button>
       </CardContent>

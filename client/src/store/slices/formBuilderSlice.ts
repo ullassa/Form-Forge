@@ -59,7 +59,10 @@ const formBuilderSlice = createSlice({
       }));
     },
     selectField: (state, action: PayloadAction<string | null>) => {
+      console.log('Redux: selectField called with:', action.payload);
+      console.log('Redux: Previous selectedFieldId:', state.selectedFieldId);
       state.selectedFieldId = action.payload;
+      console.log('Redux: New selectedFieldId:', state.selectedFieldId);
     },
     setDraggedFieldType: (state, action: PayloadAction<string | null>) => {
       state.draggedFieldType = action.payload;

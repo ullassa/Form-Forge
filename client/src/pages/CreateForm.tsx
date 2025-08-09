@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'wouter';
 import { RootState } from '../store';
-import { setFormName, setFormDescription, setFormFields, resetForm, setDraggedFieldType } from '../store/slices/formBuilderSlice';
+import { setFormName, setFormDescription, setFormFields, resetForm, setDraggedFieldType, addField, selectField } from '../store/slices/formBuilderSlice';
+import { FieldType } from '@shared/schema';
 import { addForm } from '../store/slices/savedFormsSlice';
 import { setPreviewForm } from '../store/slices/previewSlice';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -123,6 +124,8 @@ const CreateForm: React.FC = () => {
       ? createSoftwareDeveloperForm() 
       : createContactForm();
     
+    console.log('Loading template:', template);
+    
     dispatch(setFormName(template.name));
     dispatch(setFormDescription(template.description || ''));
     dispatch(setFormFields(template.fields));
@@ -187,17 +190,119 @@ const CreateForm: React.FC = () => {
             variant="outline" 
             size="sm"
             onClick={() => loadTemplate('developer')}
-            className="border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900"
+            className="text-blue-700 border-blue-300 hover:bg-blue-100"
           >
-            Software Developer Application
+            Software Developer Form
           </Button>
           <Button 
             variant="outline" 
             size="sm"
             onClick={() => loadTemplate('contact')}
-            className="border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900"
+            className="text-blue-700 border-blue-300 hover:bg-blue-100"
           >
-            Simple Contact Form
+            Contact Form
+          </Button>
+        </div>
+
+        {/* Debug Buttons */}
+        <div className="flex space-x-2 mb-4">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              console.log('Creating comprehensive test form...');
+              // Create multiple test fields
+              const testFields = [
+                {
+                  type: 'text' as FieldType,
+                  label: 'Full Name',
+                  required: true,
+                  placeholder: 'Enter your full name',
+                  validationRules: [],
+                  isDerived: false,
+                },
+                {
+                  type: 'email' as FieldType,
+                  label: 'Email Address',
+                  required: true,
+                  placeholder: 'Enter your email',
+                  validationRules: [],
+                  isDerived: false,
+                },
+                {
+                  type: 'select' as FieldType,
+                  label: 'Country',
+                  required: false,
+                  options: ['USA', 'Canada', 'UK', 'Australia'],
+                  placeholder: 'Select your country',
+                  validationRules: [],
+                  isDerived: false,
+                }
+              ];
+              
+              // Add each field
+              testFields.forEach(fieldData => {
+                dispatch(addField(fieldData));
+              });
+              
+              console.log('Test form created with', testFields.length, 'fields');
+              
+              // Auto-select the first field after a short delay
+              setTimeout(() => {
+                if (currentForm.fields && currentForm.fields.length > 0) {
+                  const firstField = currentForm.fields[0];
+                  console.log('Auto-selecting first field:', firstField.id);
+                  dispatch(selectField(firstField.id));
+                }
+              }, 500);
+            }}
+            className="text-blue-700 border-blue-300 hover:bg-blue-100"
+          >
+            🚀 Create Test Form
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              dispatch(addField({
+                type: 'text' as FieldType,
+                label: 'Test Field',
+                required: false,
+                placeholder: 'Test placeholder',
+                validationRules: [],
+                isDerived: false,
+              }));
+            }}
+            className="text-green-700 border-green-300 hover:bg-green-100"
+          >
+            Add Test Field
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              console.log('Debug button clicked - current form fields:', currentForm.fields);
+              if (currentForm.fields && currentForm.fields.length > 0) {
+                const firstField = currentForm.fields[0];
+                console.log('Manually selecting first field:', firstField.id, firstField.label);
+                dispatch(selectField(firstField.id));
+              } else {
+                console.log('No fields available to select');
+              }
+            }}
+            className="text-purple-700 border-purple-300 hover:bg-purple-100"
+          >
+            Debug: Select First Field
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              alert('Simple click test works!');
+            }}
+            className="text-orange-700 border-orange-300 hover:bg-orange-100"
+          >
+            Click Test
           </Button>
         </div>
       </div>

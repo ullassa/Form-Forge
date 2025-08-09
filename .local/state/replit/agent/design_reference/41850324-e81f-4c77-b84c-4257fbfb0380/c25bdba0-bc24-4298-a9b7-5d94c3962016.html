@@ -1,0 +1,869 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Builder - upliance.ai</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#e3f2fd',
+                            100: '#bbdefb',
+                            500: '#1976d2',
+                            600: '#1565c0',
+                            700: '#0d47a1'
+                        },
+                        secondary: {
+                            500: '#dc004e',
+                            600: '#c51162'
+                        },
+                        success: {
+                            500: '#2e7d32',
+                            600: '#1b5e20'
+                        },
+                        warning: {
+                            500: '#ed6c02',
+                            600: '#e65100'
+                        },
+                        error: {
+                            500: '#d32f2f',
+                            600: '#c62828'
+                        }
+                    },
+                    fontFamily: {
+                        'roboto': ['Roboto', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'material-1': '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+                        'material-2': '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
+                        'material-3': '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
+                        'material-4': '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        /* Custom Material Design styles */
+        .material-card {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        }
+        
+        .material-card:hover {
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+        }
+        
+        .material-button {
+            border-radius: 4px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+        
+        .material-input {
+            border-bottom: 2px solid #e0e0e0;
+            transition: border-color 0.2s;
+        }
+        
+        .material-input:focus {
+            border-bottom-color: #1976d2;
+            outline: none;
+        }
+        
+        .drag-handle {
+            cursor: grab;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        .field-type-icon {
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .route-transition {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .validation-error {
+            color: #d32f2f;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        
+        .derived-field-indicator {
+            background: linear-gradient(45deg, #1976d2, #42a5f5);
+            color: white;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-roboto">
+    <!-- App Bar -->
+    <header class="bg-primary-500 text-white shadow-material-2 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="material-icons text-2xl">dynamic_form</span>
+                <h1 class="text-xl font-medium">Form Builder</h1>
+                <span class="text-primary-100 text-sm">upliance.ai</span>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex space-x-1">
+                <button id="nav-create" class="material-button px-4 py-2 rounded hover:bg-primary-600 bg-primary-700">
+                    <span class="material-icons text-sm mr-1">build</span>
+                    Create
+                </button>
+                <button id="nav-preview" class="material-button px-4 py-2 rounded hover:bg-primary-600">
+                    <span class="material-icons text-sm mr-1">preview</span>
+                    Preview
+                </button>
+                <button id="nav-myforms" class="material-button px-4 py-2 rounded hover:bg-primary-600">
+                    <span class="material-icons text-sm mr-1">folder</span>
+                    My Forms
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Create Route -->
+        <div id="create-route" class="route-transition">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Form Builder Panel -->
+                <div class="lg:col-span-2">
+                    <div class="material-card p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-medium text-gray-800">Form Builder</h2>
+                            <button class="material-button bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600">
+                                <span class="material-icons text-sm mr-1">save</span>
+                                Save Form
+                            </button>
+                        </div>
+                        
+                        <!-- Field Types Toolbar -->
+                        <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                            <h3 class="text-sm font-medium text-gray-600 mb-3">Add Field Types</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="field-type-btn flex items-center space-x-2 bg-white px-3 py-2 rounded shadow-material-1 hover:shadow-material-2 transition-shadow" data-type="text">
+                                    <span class="material-icons text-primary-500">text_fields</span>
+                                    <span class="text-sm">Text</span>
+                                </button>
+                                <button class="field-type-btn flex items-center space-x-2 bg-white px-3 py-2 rounded shadow-material-1 hover:shadow-material-2 transition-shadow" data-type="number">
+                                    <span class="material-icons text-primary-500">numbers</span>
+                                    <span class="text-sm">Number</span>
+                                </button>
+                                <button class="field-type-btn flex items-center space-x-2 bg-white px-3 py-2 rounded shadow-material-1 hover:shadow-material-2 transition-shadow" data-type="textarea">
+                                    <span class="material-icons text-primary-500">notes</span>
+                                    <span class="text-sm">Textarea</span>
+                                </button>
+                                <button class="field-type-btn flex items-center space-x-2 bg-white px-3 py-2 rounded shadow-material-1 hover:shadow-material-2 transition-shadow" data-type="select">
+                                    <span class="material-icons text-primary-500">arrow_drop_down_circle</span>
+                                    <span class="text-sm">Select</span>
+                                </button>
+                                <button class="field-type-btn flex items-center space-x-2 bg-white px-3 py-2 rounded shadow-material-1 hover:shadow-material-2 transition-shadow" data-type="radio">
+                                    <span class="material-icons text-primary-500">radio_button_checked</span>
+                                    <span class="text-sm">Radio</span>
+                                </button>
+                                <button class="field-type-btn flex items-center space-x-2 bg-white px-3 py-2 rounded shadow-material-1 hover:shadow-material-2 transition-shadow" data-type="checkbox">
+                                    <span class="material-icons text-primary-500">check_box</span>
+                                    <span class="text-sm">Checkbox</span>
+                                </button>
+                                <button class="field-type-btn flex items-center space-x-2 bg-white px-3 py-2 rounded shadow-material-1 hover:shadow-material-2 transition-shadow" data-type="date">
+                                    <span class="material-icons text-primary-500">date_range</span>
+                                    <span class="text-sm">Date</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Fields List -->
+                        <div class="space-y-4" id="form-fields-container">
+                            <!-- Sample Field 1 -->
+                            <div class="field-item bg-white border border-gray-200 rounded-lg p-4 hover:shadow-material-2 transition-shadow">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="material-icons drag-handle text-gray-400">drag_indicator</span>
+                                        <span class="material-icons text-primary-500">text_fields</span>
+                                        <div>
+                                            <span class="font-medium text-gray-800">Full Name</span>
+                                            <div class="flex items-center space-x-2 mt-1">
+                                                <span class="bg-error-500 text-white text-xs px-2 py-1 rounded">Required</span>
+                                                <span class="text-xs text-gray-500">Text Field</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-gray-400 hover:text-primary-500" data-action="edit">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-error-500" data-action="delete">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Sample Field 2 -->
+                            <div class="field-item bg-white border border-gray-200 rounded-lg p-4 hover:shadow-material-2 transition-shadow">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="material-icons drag-handle text-gray-400">drag_indicator</span>
+                                        <span class="material-icons text-primary-500">date_range</span>
+                                        <div>
+                                            <span class="font-medium text-gray-800">Date of Birth</span>
+                                            <div class="flex items-center space-x-2 mt-1">
+                                                <span class="bg-error-500 text-white text-xs px-2 py-1 rounded">Required</span>
+                                                <span class="text-xs text-gray-500">Date Field</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-gray-400 hover:text-primary-500" data-action="edit">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-error-500" data-action="delete">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Sample Derived Field -->
+                            <div class="field-item bg-blue-50 border border-blue-200 rounded-lg p-4 hover:shadow-material-2 transition-shadow">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="material-icons drag-handle text-gray-400">drag_indicator</span>
+                                        <span class="material-icons text-primary-500">calculate</span>
+                                        <div>
+                                            <div class="flex items-center space-x-2">
+                                                <span class="font-medium text-gray-800">Age</span>
+                                                <span class="derived-field-indicator">Derived</span>
+                                            </div>
+                                            <div class="flex items-center space-x-2 mt-1">
+                                                <span class="text-xs text-gray-500">Calculated from: Date of Birth</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-gray-400 hover:text-primary-500" data-action="edit">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-error-500" data-action="delete">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Sample Field 3 -->
+                            <div class="field-item bg-white border border-gray-200 rounded-lg p-4 hover:shadow-material-2 transition-shadow">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="material-icons drag-handle text-gray-400">drag_indicator</span>
+                                        <span class="material-icons text-primary-500">email</span>
+                                        <div>
+                                            <span class="font-medium text-gray-800">Email Address</span>
+                                            <div class="flex items-center space-x-2 mt-1">
+                                                <span class="bg-error-500 text-white text-xs px-2 py-1 rounded">Required</span>
+                                                <span class="bg-warning-500 text-white text-xs px-2 py-1 rounded">Email</span>
+                                                <span class="text-xs text-gray-500">Text Field</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-gray-400 hover:text-primary-500" data-action="edit">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-error-500" data-action="delete">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div id="empty-state" class="text-center py-12 hidden">
+                            <span class="material-icons text-gray-400 text-6xl mb-4">dynamic_form</span>
+                            <h3 class="text-lg font-medium text-gray-600 mb-2">Start Building Your Form</h3>
+                            <p class="text-gray-500">Add fields from the toolbar above to get started</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Configuration Panel -->
+                <div class="lg:col-span-1">
+                    <div class="material-card p-6 sticky top-24">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">Field Configuration</h3>
+                        
+                        <!-- Field Configuration Form -->
+                        <div class="space-y-6" id="field-config">
+                            <!-- Basic Settings -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Field Label</label>
+                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md material-input" placeholder="Enter field label" value="Email Address">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Field Type</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-md material-input">
+                                    <option value="text" selected>Text</option>
+                                    <option value="number">Number</option>
+                                    <option value="textarea">Textarea</option>
+                                    <option value="select">Select</option>
+                                    <option value="radio">Radio</option>
+                                    <option value="checkbox">Checkbox</option>
+                                    <option value="date">Date</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Default Value</label>
+                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md material-input" placeholder="Optional default value">
+                            </div>
+                            
+                            <!-- Toggle Options -->
+                            <div class="space-y-3">
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" class="form-checkbox h-5 w-5 text-primary-500" checked>
+                                    <span class="text-sm font-medium text-gray-700">Required Field</span>
+                                </label>
+                                
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" class="form-checkbox h-5 w-5 text-primary-500">
+                                    <span class="text-sm font-medium text-gray-700">Derived Field</span>
+                                </label>
+                            </div>
+                            
+                            <!-- Validation Rules -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">Validation Rules</h4>
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-500">
+                                        <span class="text-sm text-gray-600">Not Empty</span>
+                                    </label>
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-500" checked>
+                                        <span class="text-sm text-gray-600">Email Format</span>
+                                    </label>
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-500">
+                                        <span class="text-sm text-gray-600">Min/Max Length</span>
+                                    </label>
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-500">
+                                        <span class="text-sm text-gray-600">Password Rules</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Length Validation -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Min Length</label>
+                                    <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded text-sm material-input" placeholder="0">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Max Length</label>
+                                    <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded text-sm material-input" placeholder="255">
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex space-x-2 pt-4">
+                                <button class="material-button flex-1 bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600">
+                                    Update Field
+                                </button>
+                                <button class="material-button px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- No Field Selected State -->
+                        <div id="no-field-selected" class="text-center py-8 hidden">
+                            <span class="material-icons text-gray-400 text-4xl mb-3">settings</span>
+                            <p class="text-gray-500 text-sm">Select a field to configure its properties</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Preview Route -->
+        <div id="preview-route" class="route-transition hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="material-card p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-2xl font-medium text-gray-800">Form Preview</h2>
+                            <p class="text-gray-600 mt-1">Test your form as an end user would see it</p>
+                        </div>
+                        <button class="material-button bg-success-500 text-white px-4 py-2 rounded hover:bg-success-600">
+                            <span class="material-icons text-sm mr-1">send</span>
+                            Submit Form
+                        </button>
+                    </div>
+                    
+                    <!-- Form Preview -->
+                    <form class="space-y-6" id="preview-form">
+                        <!-- Text Field -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Full Name <span class="text-error-500">*</span>
+                            </label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md material-input focus:border-primary-500" placeholder="Enter your full name">
+                            <div class="validation-error hidden">This field is required</div>
+                        </div>
+                        
+                        <!-- Date Field -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Date of Birth <span class="text-error-500">*</span>
+                            </label>
+                            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md material-input focus:border-primary-500" id="dob-field">
+                            <div class="validation-error hidden">This field is required</div>
+                        </div>
+                        
+                        <!-- Derived Field -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Age <span class="derived-field-indicator">Auto-calculated</span>
+                            </label>
+                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 material-input" value="25" readonly>
+                            <p class="text-xs text-gray-500 mt-1">Automatically calculated from Date of Birth</p>
+                        </div>
+                        
+                        <!-- Email Field -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Email Address <span class="text-error-500">*</span>
+                            </label>
+                            <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md material-input focus:border-primary-500" placeholder="your@email.com">
+                            <div class="validation-error hidden">Please enter a valid email address</div>
+                        </div>
+                        
+                        <!-- Select Field -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-md material-input focus:border-primary-500">
+                                <option value="">Select your experience level</option>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                                <option value="expert">Expert</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Radio Field -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Preferred Contact Method</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-3">
+                                    <input type="radio" name="contact-method" value="email" class="form-radio h-4 w-4 text-primary-500">
+                                    <span class="text-sm text-gray-700">Email</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="radio" name="contact-method" value="phone" class="form-radio h-4 w-4 text-primary-500">
+                                    <span class="text-sm text-gray-700">Phone</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="radio" name="contact-method" value="sms" class="form-radio h-4 w-4 text-primary-500">
+                                    <span class="text-sm text-gray-700">SMS</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Checkbox Field -->
+                        <div>
+                            <label class="flex items-center space-x-3">
+                                <input type="checkbox" class="form-checkbox h-5 w-5 text-primary-500">
+                                <span class="text-sm text-gray-700">I agree to the Terms of Service and Privacy Policy</span>
+                            </label>
+                        </div>
+                        
+                        <!-- Textarea Field -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Additional Comments</label>
+                            <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md material-input focus:border-primary-500" placeholder="Any additional information you'd like to share..."></textarea>
+                        </div>
+                    </form>
+                    
+                    <!-- Validation Summary -->
+                    <div class="mt-8 p-4 bg-error-50 border border-error-200 rounded-lg hidden" id="validation-summary">
+                        <div class="flex items-center space-x-2">
+                            <span class="material-icons text-error-500">error</span>
+                            <h4 class="font-medium text-error-700">Form has validation errors</h4>
+                        </div>
+                        <ul class="mt-2 text-sm text-error-600 space-y-1">
+                            <li>• Full Name is required</li>
+                            <li>• Email Address must be a valid email</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- My Forms Route -->
+        <div id="myforms-route" class="route-transition hidden">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-medium text-gray-800">My Forms</h2>
+                        <p class="text-gray-600 mt-1">Manage and access your saved forms</p>
+                    </div>
+                    <button class="material-button bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600">
+                        <span class="material-icons text-sm mr-1">add</span>
+                        Create New Form
+                    </button>
+                </div>
+                
+                <!-- Forms Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Sample Form 1 -->
+                    <div class="material-card p-6 hover:shadow-material-3 transition-shadow cursor-pointer">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-primary-100 p-2 rounded-lg">
+                                    <span class="material-icons text-primary-500">dynamic_form</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-800">Customer Registration</h3>
+                                    <p class="text-sm text-gray-500">Created 2 days ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <button class="text-gray-400 hover:text-primary-500 p-1">
+                                    <span class="material-icons text-sm">edit</span>
+                                </button>
+                                <button class="text-gray-400 hover:text-error-500 p-1">
+                                    <span class="material-icons text-sm">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="material-icons text-sm mr-2">input</span>
+                                8 Fields
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="material-icons text-sm mr-2">rule</span>
+                                3 Validation Rules
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="material-icons text-sm mr-2">calculate</span>
+                                1 Derived Field
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button class="flex-1 material-button bg-primary-500 text-white px-3 py-2 rounded text-sm hover:bg-primary-600">
+                                Preview
+                            </button>
+                            <button class="material-button border border-gray-300 px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-50">
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Sample Form 2 -->
+                    <div class="material-card p-6 hover:shadow-material-3 transition-shadow cursor-pointer">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-success-100 p-2 rounded-lg">
+                                    <span class="material-icons text-success-500">assignment</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-800">Employee Survey</h3>
+                                    <p class="text-sm text-gray-500">Created 1 week ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <button class="text-gray-400 hover:text-primary-500 p-1">
+                                    <span class="material-icons text-sm">edit</span>
+                                </button>
+                                <button class="text-gray-400 hover:text-error-500 p-1">
+                                    <span class="material-icons text-sm">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="material-icons text-sm mr-2">input</span>
+                                12 Fields
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="material-icons text-sm mr-2">rule</span>
+                                5 Validation Rules
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="material-icons text-sm mr-2">calculate</span>
+                                No Derived Fields
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button class="flex-1 material-button bg-primary-500 text-white px-3 py-2 rounded text-sm hover:bg-primary-600">
+                                Preview
+                            </button>
+                            <button class="material-button border border-gray-300 px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-50">
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Sample Form 3 -->
+                    <div class="material-card p-6 hover:shadow-material-3 transition-shadow cursor-pointer">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-warning-100 p-2 rounded-lg">
+                                    <span class="material-icons text-warning-500">contact_mail</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-800">Contact Form</h3>
+                                    <p class="text-sm text-gray-500">Created 3 weeks ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <button class="text-gray-400 hover:text-primary-500 p-1">
+                                    <span class="material-icons text-sm">edit</span>
+                                </button>
+                                <button class="text-gray-400 hover:text-error-500 p-1">
+                                    <span class="material-icons text-sm">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="material-icons text-sm mr-2">input</span>
+                                5 Fields
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="material-icons text-sm mr-2">rule</span>
+                                2 Validation Rules
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="material-icons text-sm mr-2">calculate</span>
+                                No Derived Fields
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button class="flex-1 material-button bg-primary-500 text-white px-3 py-2 rounded text-sm hover:bg-primary-600">
+                                Preview
+                            </button>
+                            <button class="material-button border border-gray-300 px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-50">
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Empty State for My Forms -->
+                <div id="forms-empty-state" class="text-center py-16 hidden">
+                    <span class="material-icons text-gray-400 text-8xl mb-6">folder_open</span>
+                    <h3 class="text-xl font-medium text-gray-600 mb-3">No forms created yet</h3>
+                    <p class="text-gray-500 mb-6">Start building your first form to see it here</p>
+                    <button class="material-button bg-primary-500 text-white px-6 py-3 rounded hover:bg-primary-600">
+                        <span class="material-icons text-sm mr-2">add</span>
+                        Create Your First Form
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Snackbar for Notifications -->
+    <div id="snackbar" class="fixed bottom-4 left-4 bg-gray-800 text-white px-4 py-2 rounded shadow-material-3 transform translate-y-full transition-transform duration-300">
+        <div class="flex items-center space-x-2">
+            <span class="material-icons text-sm">info</span>
+            <span id="snackbar-message">Form saved successfully!</span>
+        </div>
+    </div>
+
+    <!-- Save Form Dialog -->
+    <div id="save-dialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-material-4">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">Save Form</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Form Name</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md material-input" placeholder="Enter form name" value="Customer Registration">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+                    <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md material-input" placeholder="Brief description of the form"></textarea>
+                </div>
+            </div>
+            <div class="flex space-x-3 mt-6">
+                <button class="flex-1 material-button bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600" onclick="closeSaveDialog()">
+                    Save Form
+                </button>
+                <button class="material-button border border-gray-300 px-4 py-2 rounded text-gray-700 hover:bg-gray-50" onclick="closeSaveDialog()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TODO: Implement Redux store, TypeScript interfaces, and complete business logic
+        
+        (function() {
+            // Navigation functionality
+            const routes = {
+                create: document.getElementById('create-route'),
+                preview: document.getElementById('preview-route'),
+                myforms: document.getElementById('myforms-route')
+            };
+            
+            const navButtons = {
+                create: document.getElementById('nav-create'),
+                preview: document.getElementById('nav-preview'),
+                myforms: document.getElementById('nav-myforms')
+            };
+            
+            function showRoute(routeName) {
+                // Hide all routes
+                Object.values(routes).forEach(route => {
+                    route.classList.add('hidden');
+                });
+                
+                // Show selected route
+                routes[routeName].classList.remove('hidden');
+                
+                // Update nav button states
+                Object.values(navButtons).forEach(btn => {
+                    btn.classList.remove('bg-primary-700');
+                });
+                navButtons[routeName].classList.add('bg-primary-700');
+            }
+            
+            // Add event listeners to navigation buttons
+            Object.entries(navButtons).forEach(([routeName, button]) => {
+                button.addEventListener('click', () => showRoute(routeName));
+            });
+            
+            // Field type button functionality
+            const fieldTypeButtons = document.querySelectorAll('.field-type-btn');
+            fieldTypeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const fieldType = this.dataset.type;
+                    // TODO: Add field to form builder
+                    showSnackbar(`${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} field added`);
+                });
+            });
+            
+            // Drag and drop functionality (placeholder)
+            const fieldItems = document.querySelectorAll('.field-item');
+            fieldItems.forEach(item => {
+                const dragHandle = item.querySelector('.drag-handle');
+                if (dragHandle) {
+                    dragHandle.addEventListener('mousedown', function() {
+                        // TODO: Implement actual drag and drop functionality
+                        console.log('Drag started for field');
+                    });
+                }
+            });
+            
+            // Field action buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('[data-action="edit"]')) {
+                    // TODO: Populate field configuration panel
+                    console.log('Edit field clicked');
+                }
+                
+                if (e.target.closest('[data-action="delete"]')) {
+                    // TODO: Remove field from form
+                    showSnackbar('Field removed');
+                }
+            });
+            
+            // Derived field calculation demo
+            const dobField = document.getElementById('dob-field');
+            if (dobField) {
+                dobField.addEventListener('change', function() {
+                    const birthDate = new Date(this.value);
+                    const today = new Date();
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const monthDiff = today.getMonth() - birthDate.getMonth();
+                    
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+                    
+                    const ageField = document.querySelector('input[readonly]');
+                    if (ageField) {
+                        ageField.value = age > 0 ? age : '';
+                    }
+                });
+            }
+            
+            // Form validation demo
+            const previewForm = document.getElementById('preview-form');
+            if (previewForm) {
+                previewForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // TODO: Implement comprehensive form validation
+                    showSnackbar('Form validation complete');
+                });
+            }
+            
+            // Snackbar functionality
+            function showSnackbar(message) {
+                const snackbar = document.getElementById('snackbar');
+                const messageElement = document.getElementById('snackbar-message');
+                
+                messageElement.textContent = message;
+                snackbar.classList.remove('translate-y-full');
+                
+                setTimeout(() => {
+                    snackbar.classList.add('translate-y-full');
+                }, 3000);
+            }
+            
+            // Save dialog functionality
+            window.closeSaveDialog = function() {
+                document.getElementById('save-dialog').classList.add('hidden');
+            };
+            
+            // Make snackbar function globally available
+            window.showSnackbar = showSnackbar;
+            
+            // Initialize with create route
+            showRoute('create');
+        })();
+    </script>
+</body>
+</html>
