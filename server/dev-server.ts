@@ -54,8 +54,8 @@ async function startFormForgeServer() {
     // Create HTTP server
     const server = createServer(app);
 
-    const PORT = 3000;
-    const HOST = 'localhost';
+    const PORT = parseInt(process.env.PORT || '3000', 10);
+    const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 
     server.listen(PORT, HOST, () => {
       console.log(`✅ FormForge Server running on http://${HOST}:${PORT}`);
