@@ -24,6 +24,8 @@ const FieldConfigPanel: React.FC = () => {
   const [derivedConfig, setDerivedConfig] = useState<DerivedFieldConfig | null>(null);
 
   useEffect(() => {
+    console.log('FieldConfigPanel - selectedFieldId:', selectedFieldId);
+    console.log('FieldConfigPanel - selectedField:', selectedField);
     if (selectedField) {
       setFieldConfig(selectedField);
       setValidationRules(selectedField.validationRules || []);
@@ -33,7 +35,7 @@ const FieldConfigPanel: React.FC = () => {
       setValidationRules([]);
       setDerivedConfig(null);
     }
-  }, [selectedField]);
+  }, [selectedField, selectedFieldId]);
 
   const handleFieldUpdate = (updates: Partial<FormField>) => {
     if (fieldConfig) {
