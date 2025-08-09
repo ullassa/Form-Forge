@@ -1,37 +1,48 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type Form } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
-
+// Form storage interface for the form builder application
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getForms(): Promise<Form[]>;
+  getForm(id: string): Promise<Form | undefined>;
+  createForm(form: Omit<Form, 'id'>): Promise<Form>;
+  updateForm(id: string, form: Partial<Form>): Promise<Form | undefined>;
+  deleteForm(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private forms: Map<string, Form>;
 
   constructor() {
-    this.users = new Map();
+    this.forms = new Map();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getForms(): Promise<Form[]> {
+    return Array.from(this.forms.values());
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async getForm(id: string): Promise<Form | undefined> {
+    return this.forms.get(id);
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createForm(formData: Omit<Form, 'id'>): Promise<Form> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const form: Form = { ...formData, id };
+    this.forms.set(id, form);
+    return form;
+  }
+
+  async updateForm(id: string, updates: Partial<Form>): Promise<Form | undefined> {
+    const existingForm = this.forms.get(id);
+    if (!existingForm) return undefined;
+    
+    const updatedForm = { ...existingForm, ...updates };
+    this.forms.set(id, updatedForm);
+    return updatedForm;
+  }
+
+  async deleteForm(id: string): Promise<boolean> {
+    return this.forms.delete(id);
   }
 }
 

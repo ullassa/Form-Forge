@@ -67,6 +67,9 @@ const formBuilderSlice = createSlice({
     loadForm: (state, action: PayloadAction<Form>) => {
       state.currentForm = action.payload;
     },
+    setFormFields: (state, action: PayloadAction<FormField[]>) => {
+      state.currentForm.fields = action.payload;
+    },
     resetForm: (state) => {
       state.currentForm = {
         name: '',
@@ -94,6 +97,7 @@ export const {
   selectField,
   setDraggedFieldType,
   loadForm,
+  setFormFields,
   resetForm,
   setLoading,
   setError,

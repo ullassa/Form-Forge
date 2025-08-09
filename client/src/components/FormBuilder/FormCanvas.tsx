@@ -20,9 +20,13 @@ const FormCanvas: React.FC<FormCanvasProps> = ({ onSaveForm, onEditField }) => {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const fieldType = e.dataTransfer.getData('fieldType') as FieldType;
+    e.stopPropagation();
     
-    if (fieldType) {
+    const fieldType = e.dataTransfer.getData('fieldType') as FieldType;
+    const fieldId = e.dataTransfer.getData('fieldId');
+    
+    if (fieldType && !fieldId) {
+      // Adding a new field
       const newField: Omit<FormField, 'id' | 'order'> = {
         type: fieldType,
         label: `${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} Field`,
@@ -35,6 +39,7 @@ const FormCanvas: React.FC<FormCanvasProps> = ({ onSaveForm, onEditField }) => {
       
       dispatch(addField(newField));
     }
+    // Field reordering would be handled here if needed
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -71,9 +76,19 @@ const FormCanvas: React.FC<FormCanvasProps> = ({ onSaveForm, onEditField }) => {
       </CardHeader>
       <CardContent>
         <div
-          className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 min-h-80 transition-colors"
+          className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 min-h-80 transition-colors hover:border-primary/50 hover:bg-primary/5"
           onDrop={handleDrop}
           onDragOver={handleDragOver}
+          onDragEnter={(e) => {
+            e.preventDefault();
+            e.currentTarget.classList.add('border-primary', 'bg-primary/10');
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+              e.currentTarget.classList.remove('border-primary', 'bg-primary/10');
+            }
+          }}
         >
           {fields.length === 0 ? (
             <div className="text-center py-12 text-gray-500 dark:text-gray-400">

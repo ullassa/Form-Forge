@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'wouter';
 import { RootState } from '../store';
-import { setFormName, setFormDescription, resetForm, setDraggedFieldType } from '../store/slices/formBuilderSlice';
+import { setFormName, setFormDescription, setFormFields, resetForm, setDraggedFieldType } from '../store/slices/formBuilderSlice';
 import { addForm } from '../store/slices/savedFormsSlice';
 import { setPreviewForm } from '../store/slices/previewSlice';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -18,6 +18,7 @@ import UserGuide from '../components/Help/UserGuide';
 import { saveFormToStorage } from '../utils/storage';
 import { generateId } from '../utils/helpers';
 import { Form } from '@shared/schema';
+import { createSoftwareDeveloperForm, createContactForm } from '../utils/sampleForms';
 
 const CreateForm: React.FC = () => {
   const [, setLocation] = useLocation();
@@ -117,6 +118,21 @@ const CreateForm: React.FC = () => {
     // This could be used for additional logic if needed
   };
 
+  const loadTemplate = (templateType: 'developer' | 'contact') => {
+    const template = templateType === 'developer' 
+      ? createSoftwareDeveloperForm() 
+      : createContactForm();
+    
+    dispatch(setFormName(template.name));
+    dispatch(setFormDescription(template.description || ''));
+    dispatch(setFormFields(template.fields));
+    
+    toast({
+      title: "Template Loaded",
+      description: `${template.name} has been loaded successfully!`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -159,6 +175,30 @@ const CreateForm: React.FC = () => {
             onChange={(e) => dispatch(setFormDescription(e.target.value))}
             placeholder="Brief description of the form"
           />
+        </div>
+      </div>
+
+      {/* Quick Start Templates */}
+      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <h3 className="text-lg font-semibold mb-3 text-blue-900 dark:text-blue-100">Quick Start Templates</h3>
+        <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">Load pre-built forms to get started quickly:</p>
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => loadTemplate('developer')}
+            className="border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900"
+          >
+            Software Developer Application
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => loadTemplate('contact')}
+            className="border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900"
+          >
+            Simple Contact Form
+          </Button>
         </div>
       </div>
 
