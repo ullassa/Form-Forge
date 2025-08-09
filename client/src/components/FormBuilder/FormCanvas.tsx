@@ -98,7 +98,7 @@ const FormCanvas: React.FC<FormCanvasProps> = ({ onSaveForm, onEditField }) => {
             </div>
           ) : (
             <div className="space-y-4">
-              {fields
+              {[...fields]
                 .sort((a, b) => a.order - b.order)
                 .map((field) => (
                   <DraggableField

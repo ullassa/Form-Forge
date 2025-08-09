@@ -39,7 +39,7 @@ const FormsList: React.FC = () => {
     }
   };
 
-  const filteredAndSortedForms = forms
+  const filteredAndSortedForms = [...forms]
     .filter(form => 
       form.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (form.description && form.description.toLowerCase().includes(searchQuery.toLowerCase()))
